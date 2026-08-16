@@ -1,0 +1,57 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function POST(req: NextRequest) {
+  try {
+    const { messages, prices } = await req.json();
+
+    // Extra coins - CoinPaprika (free, no key)
+    let extra = '';
+    try {
+      const ids = ['matic-matic', 'bnb-binance-coin', 'sol-solana'];
+      const parts: string[] = [];
+      for (const id of ids) {
+        const r = await fetch(`https://api.coinpaprika.com/v1/tickers/${id}`);
+        const j = await r.json();
+        if (j?.quotes?.USD) parts.push(`${j.symbol}: $${j.quotes.USD.price}`);
+      }
+      if (parts.length) extra = ' | ' + parts.join(', ');
+    } catch {}
+
+    // Live BTC/ETH - client ke Binance WebSocket se
+    const live = prices?.BTC
+      ? ` LIVE PRICES (USD): BTC: $${prices.BTC} (${(prices.BTC_CHANGE || 0).toFixed(2)}% 24h), ETH: $${prices.ETH}`
+      : '';
+
+    const system =
+      `You are CryptoAI, a friendly crypto expert assistant created by Abbas Hussain.` +
+      live +
+      extra +
+      `. Answer concisely (max 150 words). Reply in the same language style the user uses (Roman Urdu or English). If asked about your developer, mention Abbas Hussain - 16-year-old self-taught developer from Pakistan who built you on a mobile phone.`;
+
+    const contents = messages.map((m: any) => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.text }],
+    }));
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: system }] },
+          contents,
+        }),
+      }
+    );
+
+    const data = await res.json();
+    const text =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      'Sorry, koi masla aa gaya - dobara try karein.';
+
+    return NextResponse.json({ reply: text });
+  } catch (e: any) {
+    return NextResponse.json({ reply: 'Error: ' + (e.message || 'server issue') }, { status: 500 });
+  }
+}
