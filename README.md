@@ -6,7 +6,7 @@
 
 **A real-time AI crypto assistant that answers with live market data - built with Next.js, Groq (Llama 3.3 70B) and Binance WebSocket streams.**
 
-[![LIVE DEMO](https://img.shields.io/badge/🚀_LIVE_DEMO-cryptoai-two.vercel.app-8B5CF6?style=for-the-badge&logo=vercel&logoColor=white)](https://cryptoai-two.vercel.app)
+[![LIVE DEMO](https://img.shields.io/badge/🚀_LIVE_DEMO-cryptoai.vercel.app-8B5CF6?style=for-the-badge&logo=vercel&logoColor=white)](https://cryptoai-two.vercel.app)
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
