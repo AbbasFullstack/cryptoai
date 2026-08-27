@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
 
+type ChatMessage = { role?: string; text?: string };
+type PriceSnapshot = { BTC?: number; BTC_CHANGE?: number; ETH?: number };
+
 export async function POST(req: NextRequest) {
   try {
-    const { messages, prices } = await req.json();
+    const body = await req.json() as { messages?: ChatMessage[]; prices?: PriceSnapshot };
+    const messages = Array.isArray(body.messages) ? body.messages : [];
+    const prices = body.prices;
     const key = process.env.GROQ_API_KEY;
 
     // Extra coins - CoinPaprika
@@ -33,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     const msgs = [
       { role: 'system', content: system },
-      ...messages.map((m: any) => ({
+      ...messages.map((m: ChatMessage) => ({
         role: m.role === 'user' ? 'user' : 'assistant',
         content: m.text,
       })),
@@ -54,13 +59,13 @@ export async function POST(req: NextRequest) {
         const text = data?.choices?.[0]?.message?.content;
         if (text) return NextResponse.json({ reply: text });
         lastError = data?.error?.message || 'HTTP ' + res.status;
-      } catch (e: any) {
-        lastError = e.message;
+      } catch (e: unknown) {
+        lastError = e instanceof Error ? e.message : 'Unknown provider error';
       }
     }
 
     return NextResponse.json({ reply: '⚠️ AI Error: ' + lastError });
-  } catch (e: any) {
-    return NextResponse.json({ reply: 'Error: ' + (e.message || 'server issue') }, { status: 500 });
+  } catch (e: unknown) {
+    return NextResponse.json({ reply: 'Error: ' + (e instanceof Error ? e.message : 'server issue') }, { status: 500 });
   }
 }
