@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { ArrowRight, Sparkles, TrendingUp, MessageSquare, Users, Zap, Star, Coin, Rocket, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, Sparkles, TrendingUp, MessageSquare, Users, Zap, Star, Coins, Rocket, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LandingPage() {
@@ -49,7 +49,7 @@ export default function LandingPage() {
   const stats = [
     { label: 'Real-Time Data', value: 'Live', icon: Zap, color: 'text-blue-400' },
     { label: 'AI Models', value: 'Llama 3.3', icon: Rocket, color: 'text-purple-400' },
-    { label: 'Coins Tracked', value: '100+', icon: Coin, color: 'text-orange-400' },
+    { label: 'Coins Tracked', value: '100+', icon: Coins, color: 'text-orange-400' },
     { label: 'Response Time', value: '<1s', icon: TrendingUp, color: 'text-green-400' },
   ];
 
