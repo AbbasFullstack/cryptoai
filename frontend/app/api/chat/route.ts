@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+// Updated model list with currently available Groq models
+const MODELS = [
+  'llama-3.3-70b-versatile',
+  'llama3-8b-8192',
+  'mixtral-8x7b-32768',
+  'gemma2-9b-it'
+];
 
 type ChatMessage = { role?: string; text?: string };
 type PriceSnapshot = {
@@ -27,8 +33,7 @@ export async function POST(req: NextRequest) {
     if (!key || key === 'gsk_' || key.length < 20) {
       console.error('GROQ_API_KEY is missing or invalid, length:', key?.length);
       return NextResponse.json({
-        reply: '\u26a0\ufe0f API Error: GROQ_API_KEY is not configured properly. Please add it to your Vercel environment variables as GROQ_API_KEY. Current key length:',
-        keyLength: key?.length || 0
+        reply: '\u26a0\ufe0f API Error: GROQ_API_KEY is not configured properly. Please add it to your Vercel environment variables as GROQ_API_KEY. Current key length: ' + (key?.length || 0)
       }, { status: 400 });
     }
     
@@ -156,6 +161,12 @@ CURRENT DATE: ${new Date().toISOString().split('T')[0]}
           continue;
         }
         
+        if (res.status === 404) {
+          lastError = `Model '${model}' not found. Trying next available model...`;
+          console.error(`Groq API 404 error - Model ${model} not found`);
+          continue;
+        }
+        
         if (!res.ok) {
           lastError = data?.error?.message || `HTTP ${res.status}`;
           console.error('Groq API error:', data?.error);
@@ -164,8 +175,8 @@ CURRENT DATE: ${new Date().toISOString().split('T')[0]}
         
         const text = data?.choices?.[0]?.message?.content;
         if (text) {
-          console.log('Groq API response received');
-          return NextResponse.json({ reply: text });
+          console.log('Groq API response received from model:', model);
+          return NextResponse.json({ reply: text, model: model });
         }
         
         lastError = data?.error?.message || 'No response text received';
@@ -178,7 +189,7 @@ CURRENT DATE: ${new Date().toISOString().split('T')[0]}
 
     console.error('All models failed, last error:', lastError);
     return NextResponse.json({
-      reply: '\u26a0\ufe0f AI Error: ' + lastError + '\n\nPlease ensure your GROQ_API_KEY is valid and you have internet access.'
+      reply: '\u26a0\ufe0f AI Error: ' + lastError + '\n\nPlease ensure your GROQ_API_KEY is valid and you have internet access.\nAvailable models: ' + MODELS.join(', ')
     });
   } catch (e: unknown) {
     console.error('Server error:', e);
