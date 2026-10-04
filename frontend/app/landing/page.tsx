@@ -9,7 +9,6 @@ export default function LandingPage() {
   const [btcChange, setBtcChange] = useState<number>(0);
   const [ethChange, setEthChange] = useState<number>(0);
   const [solPrice, setSolPrice] = useState<number | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   // Fetch live prices from Binance WebSocket
   useEffect(() => {

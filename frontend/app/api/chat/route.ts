@@ -166,8 +166,8 @@ CURRENT DATE: ${new Date().toISOString().split('T')[0]}
 }
 
 // GET method for testing
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest } from 'next/server';
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
+export async function GET(req: NextRequest) {
   return NextResponse.json({ status: 'ok', message: 'CryptoAI API is running' });
 }

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { Bot, Send, ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, Loader2, Sparkles, X } from 'lucide-react';
+import { Bot, Send, Loader2, Sparkles, X } from 'lucide-react';
 import Link from 'next/link';
 
 interface Msg {
@@ -113,7 +113,7 @@ export default function ChatPage() {
     };
     
     return () => ws.close();
-  }, []);
+  }, [btc]);
 
   // Fetch additional coin data from CoinPaprika
   useEffect(() => {
