@@ -1,12 +1,14 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
+  "name": "cryptoai",
+  "version": "2.0.0",
+  "description": "AI-powered crypto assistant with real-time market data",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "echo \"Run tests with: npm run dev\""
   },
   "dependencies": {
     "lucide-react": "^1.31.0",
@@ -23,5 +25,16 @@
     "eslint-config-next": "16.3.1",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "keywords": [
+    "crypto",
+    "ai",
+    "binance",
+    "websocket",
+    "groq",
+    "nextjs",
+    "typescript"
+  ],
+  "author": "Abbas Hussain",
+  "license": "MIT"
 }
