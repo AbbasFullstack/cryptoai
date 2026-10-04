@@ -48,7 +48,3 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     </html>
   );
 }
-
-type LayoutProps = {
-  children: React.ReactNode;
-};

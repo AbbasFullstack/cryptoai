@@ -31,7 +31,6 @@ export default function LandingPage() {
         if (stream === 'solusdt@miniTicker') {
           setSolPrice(parseFloat(d.c));
         }
-        setIsLoaded(true);
       } catch (error) {
         console.error('WebSocket error:', error);
       }
