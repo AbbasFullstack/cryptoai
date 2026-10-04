@@ -22,13 +22,17 @@ export async function POST(req: NextRequest) {
     const prices = body.prices || {};
     
     // Use the provided Groq API key from environment variables
-    const key = process.env.GROQ_API_KEY;
+    const key = process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY;
     
-    if (!key) {
+    if (!key || key === 'gsk_' || key.length < 20) {
+      console.error('GROQ_API_KEY is missing or invalid, length:', key?.length);
       return NextResponse.json({
-        reply: '⚠️ API Error: GROQ_API_KEY is not configured. Please add it to your environment variables.'
+        reply: '\u26a0\ufe0f API Error: GROQ_API_KEY is not configured properly. Please add it to your Vercel environment variables as GROQ_API_KEY. Current key length:',
+        keyLength: key?.length || 0
       }, { status: 400 });
     }
+    
+    console.log('Using GROQ_API_KEY with length:', key.length);
 
     // Format live prices for the system prompt
     const livePrices: string[] = [];
@@ -123,6 +127,7 @@ CURRENT DATE: ${new Date().toISOString().split('T')[0]}
     
     for (const model of MODELS) {
       try {
+        console.log(`Trying model: ${model}`);
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -140,25 +145,43 @@ CURRENT DATE: ${new Date().toISOString().split('T')[0]}
         const data = await res.json();
         
         if (res.status === 401) {
-          lastError = 'Invalid API key. Please check your GROQ_API_KEY environment variable.';
+          lastError = 'Invalid API key. Please verify your GROQ_API_KEY is correct.';
+          console.error('Groq API 401 error - Invalid key');
+          continue;
+        }
+        
+        if (res.status === 429) {
+          lastError = 'Rate limit exceeded. Please try again in a moment.';
+          console.error('Groq API 429 error - Rate limited');
+          continue;
+        }
+        
+        if (!res.ok) {
+          lastError = data?.error?.message || `HTTP ${res.status}`;
+          console.error('Groq API error:', data?.error);
           continue;
         }
         
         const text = data?.choices?.[0]?.message?.content;
         if (text) {
+          console.log('Groq API response received');
           return NextResponse.json({ reply: text });
         }
         
-        lastError = data?.error?.message || 'HTTP ' + res.status;
+        lastError = data?.error?.message || 'No response text received';
+        console.error('No response text:', data);
       } catch (e: unknown) {
         lastError = e instanceof Error ? e.message : 'Unknown provider error';
+        console.error('Groq API fetch error:', e);
       }
     }
 
+    console.error('All models failed, last error:', lastError);
     return NextResponse.json({
-      reply: '⚠️ AI Error: ' + lastError + '\n\nPlease ensure your GROQ_API_KEY is valid and you have internet access.'
+      reply: '\u26a0\ufe0f AI Error: ' + lastError + '\n\nPlease ensure your GROQ_API_KEY is valid and you have internet access.'
     });
   } catch (e: unknown) {
+    console.error('Server error:', e);
     return NextResponse.json({
       reply: 'Error: ' + (e instanceof Error ? e.message : 'server issue')
     }, { status: 500 });
